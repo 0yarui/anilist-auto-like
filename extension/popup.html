@@ -1,0 +1,220 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>AniList Auto-Like</title>
+  <style>
+    :root {
+      --bg: #0b1622; --card: #0f1b2b; --field: #08111b; --line: #22344d;
+      --text: #9fadbd; --white: #edf1f5;
+      --blue: #3db4f2; --purple: #c063ff; --pink: #fa7aa8;
+      --red: #e85d75; --orange: #f79a63; --green: #7bd555;
+      --mono: ui-monospace, 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+      --grad: linear-gradient(90deg, var(--blue) 0%, var(--purple) 55%, var(--pink) 100%);
+    }
+    * { box-sizing: border-box; }
+    body { width: 340px; margin: 0; background: var(--bg); color: var(--text); font: 13px/1.45 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+    [hidden] { display: none !important; }
+    .app { padding: 0 14px 14px; }
+
+    header { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0 -14px 16px; padding: 14px; border-bottom: 1px solid var(--line); }
+    header svg { flex: none; }
+    h1 { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -.4px; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+
+    .intro { margin: 0 0 12px; text-align: center; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 16px; border: 1px solid transparent; border-radius: 999px; font: 600 13px/1 inherit; cursor: pointer; text-decoration: none; transition: filter .15s, background .15s, border-color .15s; }
+    .btn:hover { filter: brightness(1.08); }
+    .btn:disabled { opacity: .6; cursor: default; }
+    .btn-primary { background: var(--blue); color: #04121e; }
+    .btn-danger { background: var(--red); color: #fff; }
+    .btn-ghost { background: transparent; color: var(--blue); border-color: var(--blue); }
+    .btn-ghost:hover { background: rgba(61,180,242,.12); filter: none; }
+    .btn-small { padding: 7px 12px; font-size: 12px; }
+    .btn-block { width: 100%; }
+    .btn-big { padding: 15px 16px; font-size: 15px; }
+    .btn-big::before { content: ''; width: 15px; height: 15px; background: currentColor; -webkit-mask: var(--ico) center / contain no-repeat; mask: var(--ico) center / contain no-repeat; }
+    .btn-primary.btn-big { --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21S3 15.2 3 8.9C3 6 5.2 4 7.8 4c1.8 0 3.3.9 4.2 2.4C12.9 4.9 14.4 4 16.2 4 18.8 4 21 6 21 8.9 21 15.2 12 21 12 21z'/%3E%3C/svg%3E"); }
+    .btn-danger.btn-big { --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='4' y='4' width='16' height='16' rx='3'/%3E%3C/svg%3E"); }
+
+    .mono { font-family: var(--mono); }
+
+    /* setup steps */
+    ol.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+    .step { display: grid; grid-template-columns: 26px 1fr; gap: 10px; padding: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; }
+    .num { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--blue); color: var(--blue); font: 700 12px var(--mono); }
+    .step h3 { margin: 2px 0 3px; font-size: 13px; color: var(--white); }
+    .step p { margin: 0 0 9px; font-size: 12px; }
+    .codebox { display: flex; align-items: stretch; gap: 6px; }
+    .codebox code { flex: 1; padding: 8px 10px; background: var(--field); border: 1px solid var(--line); border-radius: 12px; color: var(--blue); font: 11px/1.4 var(--mono); word-break: break-all; user-select: all; }
+    .note { margin: 12px 2px 0; padding: 9px 12px; border-radius: 14px; background: rgba(247,154,99,.07); border: 1px solid rgba(247,154,99,.3); color: var(--orange); font-size: 12px; }
+    #acctError { margin-top: 6px; color: var(--red); font-size: 12px; word-break: break-word; }
+
+    input[type="text"], input[type="number"], select { width: 100%; padding: 9px 12px; background: var(--field); color: var(--white); border: 1px solid var(--line); border-radius: 12px; font: inherit; }
+    input:focus, select:focus { outline: 2px solid rgba(61,180,242,.45); border-color: var(--blue); }
+    .field { display: grid; gap: 4px; margin-bottom: 8px; }
+    .field label { font-size: 12px; }
+    .stack { display: grid; gap: 8px; }
+
+    /* main view */
+    .chip { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0 auto 14px; width: fit-content; max-width: 100%; padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--white); font: 12px var(--mono); }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
+    #status { min-height: 18px; margin: 10px 4px 14px; text-align: center; font: 12px var(--mono); }
+    #status.warn { color: var(--orange); }
+
+    .card { margin-bottom: 10px; padding: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 20px; }
+    .card > h2, summary { margin: 0; font: 600 11px var(--mono); letter-spacing: .09em; text-transform: uppercase; color: var(--text); }
+    summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: '▸'; color: var(--text); }
+    details[open] > summary::after { content: '▾'; }
+    details > .body { margin-top: 12px; }
+    .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 10px; padding: 4px; background: var(--field); border: 1px solid var(--line); border-radius: 999px; }
+    .seg button { padding: 8px 4px; border: 0; border-radius: 999px; background: transparent; color: var(--text); font: 600 12px/1 inherit; cursor: pointer; }
+    .seg button.active { background: var(--blue); color: #04121e; }
+    .seg button[data-preset="turbo"].active { background: var(--orange); }
+    #presetHint { min-height: 30px; margin: 10px 2px 0; font-size: 12px; }
+    #presetHint.warn { color: var(--orange); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    small { display: block; opacity: .75; font-size: 11px; }
+    .check { display: flex; align-items: center; gap: 8px; margin: 4px 0 0; }
+    .check input { width: auto; margin: 0; }
+    .add-row { display: flex; gap: 6px; margin-bottom: 6px; }
+    .add-row input { flex: 1; }
+    #list { list-style: none; margin: 0; padding: 0; }
+    #list li { display: flex; justify-content: space-between; align-items: center; padding: 4px 2px; color: var(--white); }
+    #list button { padding: 2px 9px; border: 0; border-radius: 999px; background: var(--line); color: var(--text); cursor: pointer; }
+
+    /* footer */
+    .links { display: flex; justify-content: center; gap: 4px 14px; flex-wrap: wrap; margin-top: 4px; }
+    .link { background: none; border: 0; padding: 4px; color: var(--text); font: inherit; cursor: pointer; }
+    .link:hover { color: var(--white); text-decoration: underline; }
+    .link.danger:hover { color: var(--red); }
+    footer { margin-top: 12px; padding-top: 14px; border-top: 1px solid var(--line); display: grid; gap: 10px; }
+    #repoLinks { display: flex; justify-content: center; gap: 8px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><defs><linearGradient id="hg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3db4f2"/><stop offset=".55" stop-color="#c063ff"/><stop offset="1" stop-color="#fa7aa8"/></linearGradient></defs><path fill="url(#hg)" d="M12 21S3 15.2 3 8.9C3 6 5.2 4 7.8 4c1.8 0 3.3.9 4.2 2.4C12.9 4.9 14.4 4 16.2 4 18.8 4 21 6 21 8.9 21 15.2 12 21 12 21z"/></svg>
+      <h1>AniList Auto-Like</h1>
+    </header>
+
+    <!-- setup, until the account is connected -->
+    <main id="viewSetup">
+      <p class="intro" data-i18n="setupIntro"></p>
+      <ol class="steps">
+        <li class="step">
+          <span class="num">1</span>
+          <div>
+            <h3 data-i18n="s1Title"></h3>
+            <p data-i18n="s1Text"></p>
+            <a class="btn btn-ghost btn-small" href="https://anilist.co/settings/developer" target="_blank" rel="noopener" data-i18n="openDev"></a>
+          </div>
+        </li>
+        <li class="step">
+          <span class="num">2</span>
+          <div>
+            <h3 data-i18n="s2Title"></h3>
+            <p data-i18n="s2Text" style="margin:0"></p>
+          </div>
+        </li>
+        <li class="step">
+          <span class="num">3</span>
+          <div>
+            <h3 data-i18n="s3Title"></h3>
+            <p data-i18n="s3Text"></p>
+            <div class="codebox">
+              <code id="redirectUrl"></code>
+              <button id="copyRedirect" class="btn btn-ghost btn-small" data-i18n="copy"></button>
+            </div>
+          </div>
+        </li>
+        <li class="step">
+          <span class="num">4</span>
+          <div>
+            <h3 data-i18n="s4Title"></h3>
+            <p data-i18n="s4Text"></p>
+            <div class="stack">
+              <input id="clientId" type="text" inputmode="numeric" autocomplete="off" placeholder="12345" aria-label="Client ID">
+              <button id="connect" class="btn btn-primary btn-block" data-i18n="connect"></button>
+            </div>
+            <div id="acctError"></div>
+          </div>
+        </li>
+      </ol>
+      <div class="note" data-i18n="secretNote"></div>
+    </main>
+
+    <!-- main -->
+    <main id="viewMain" hidden>
+      <div class="chip"><span class="dot"></span><span id="acctName"></span></div>
+      <button id="toggle" class="btn btn-primary btn-big btn-block"></button>
+      <div id="status"></div>
+
+      <section class="card">
+        <h2 data-i18n="speed"></h2>
+        <div class="seg" id="presets">
+          <button type="button" data-preset="careful" data-i18n="careful"></button>
+          <button type="button" data-preset="fast" data-i18n="fast"></button>
+          <button type="button" data-preset="turbo" data-i18n="turbo"></button>
+        </div>
+        <div id="presetHint"></div>
+      </section>
+
+      <details class="card">
+        <summary data-i18n="advanced"></summary>
+        <div class="body">
+          <div class="row">
+            <div class="field"><label for="minDelay" data-i18n="minDelay"></label><input id="minDelay" type="number" min="0.1" step="0.1"></div>
+            <div class="field"><label for="maxDelay" data-i18n="maxDelay"></label><input id="maxDelay" type="number" min="0.1" step="0.1"></div>
+          </div>
+          <div class="field"><label for="maxLikes" data-i18n="maxLikes"></label><input id="maxLikes" type="number" min="0" step="1"></div>
+          <div class="field">
+            <label for="reqPerMin" data-i18n="reqCap"></label>
+            <input id="reqPerMin" type="number" min="1" max="120" step="1">
+            <small data-i18n="reqCapHint"></small>
+          </div>
+          <div class="field"><label for="homeFeed" data-i18n="homeFeed"></label>
+            <select id="homeFeed">
+              <option value="following" data-i18n="following"></option>
+              <option value="global" data-i18n="global"></option>
+            </select>
+          </div>
+          <label class="check"><input id="autoScroll" type="checkbox"><span data-i18n="autoScroll"></span></label>
+        </div>
+      </details>
+
+      <details class="card">
+        <summary data-i18n="blacklist"></summary>
+        <div class="body">
+          <small data-i18n="blacklistHint" style="margin-bottom:8px"></small>
+          <div class="add-row">
+            <input id="newUser" type="text" data-i18n-ph="username" autocomplete="off">
+            <button id="add" class="btn btn-ghost btn-small" data-i18n="add"></button>
+          </div>
+          <ul id="list"></ul>
+        </div>
+      </details>
+
+      <div class="links">
+        <button id="disconnect" class="link danger" data-i18n="disconnect"></button>
+        <button id="reset" class="link" data-i18n="resetSettings"></button>
+      </div>
+    </main>
+
+    <footer>
+      <select id="lang" aria-label="Language"></select>
+      <div id="repoLinks" hidden>
+        <a id="reportIssue" class="btn btn-ghost btn-small" target="_blank" rel="noopener" data-i18n="reportIssue"></a>
+        <a id="github" class="btn btn-ghost btn-small" target="_blank" rel="noopener" data-i18n="github"></a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="i18n.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
