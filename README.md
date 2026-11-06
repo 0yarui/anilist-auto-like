@@ -24,7 +24,7 @@ Firefox extension that automatically likes activity-feed posts on [AniList](http
   2. Open `about:debugging#/runtime/this-firefox`.
   3. Click **Load Temporary Add-on…** and select `extension/manifest.json`.
 
-Requires Firefox 128 or newer.
+Requires Firefox 140 or newer.
 
 ## One-time setup
 
