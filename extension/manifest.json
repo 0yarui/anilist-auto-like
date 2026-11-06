@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "AniList Auto-Like",
-  "version": "1.5.4",
-  "description": "Automatically likes activity feed posts on AniList (home and profiles) with rate limiting and auto-scroll.",
+  "version": "1.5.5",
+  "description": "Automatically likes activity feed posts on AniList (home and profiles) at a safe, adjustable speed.",
   "permissions": [
     "storage",
     "identity"

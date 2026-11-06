@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.5.5
+- Manifest description no longer mentions auto-scroll (the extension never scrolls the page)
+
 ## 1.5.4
 - While AniList's rate limit makes the extension wait, the button, the toast and the popup show a countdown ("Resuming in 42s") instead of looking frozen
 - Setup stays in the toolbar popup (an extra setup window was tried and removed)
