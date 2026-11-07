@@ -46,8 +46,8 @@ SUPPORT AND SOURCE CODE
 https://github.com/0yarui/anilist-auto-like
 Licensed under GPL-3.0-or-later.
 
-## Categories
-Social & Communication
+## Categories (up to 3)
+Social & Communication, Games & Entertainment
 
 ## Tags
 anilist, anime, manga, social, likes
@@ -64,7 +64,7 @@ The extension needs an AniList account and a personal API client to test:
 2. Set its Redirect URL to the value shown in the extension popup.
 3. Enter the Client ID in the popup and click Connect (OAuth implicit grant through browser.identity.launchWebAuthFlow). The token is stored in storage.local.
 4. Open https://anilist.co/home and click the "Like" button in the navigation bar, or "Like Posts" in the popup.
-Permissions: "storage" (settings and token), "identity" (login window), host permissions graphql.anilist.co (API calls) and anilist.co (content script, and reading the active tab URL from the popup to ask the user to open or refresh an AniList page). The code is not minified or obfuscated; it is the same as the repository.
+Permissions: "storage" (settings and token), "identity" (login window), host permissions graphql.anilist.co (API calls) and anilist.co (content script, and reading the active tab URL from the popup to ask the user to open or refresh an AniList page). There is no build step: the uploaded zip contains the source files exactly as they are in the repository (https://github.com/0yarui/anilist-auto-like, folder extension/), nothing is minified, obfuscated or downloaded at runtime. A free AniList account is enough to test. The Redirect URL shown in the popup is derived from the add-on ID (anilist-autolike@0yarui).
 
 ## Data declaration
-The manifest declares data_collection_permissions required ["authenticationInfo"]: the extension keeps an AniList access token in storage.local and sends it only to AniList's own API (graphql.anilist.co). Nothing goes to the developer or to any other server. Add-on ID: anilist-autolike@addon (AMO checks that it is unique on first upload; if it is taken, change it in manifest.json).
+The manifest declares data_collection_permissions required ["authenticationInfo"]: the extension keeps an AniList access token in storage.local and sends it only to AniList's own API (graphql.anilist.co). Nothing goes to the developer or to any other server. Add-on ID: anilist-autolike@0yarui (AMO checks that it is unique on first upload; if it is taken, change it in manifest.json).

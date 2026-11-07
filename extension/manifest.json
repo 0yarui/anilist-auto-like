@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "AniList Auto-Like",
-  "version": "1.5.5",
+  "version": "1.5.8",
   "description": "Automatically likes activity feed posts on AniList (home and profiles) at a safe, adjustable speed.",
   "permissions": [
     "storage",
@@ -37,8 +37,8 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "anilist-autolike@addon",
-      "strict_min_version": "140.0",
+      "id": "anilist-autolike@0yarui",
+      "strict_min_version": "142.0",
       "data_collection_permissions": {
         "required": [
           "authenticationInfo"

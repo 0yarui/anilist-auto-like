@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.5.8
+- Removed the gecko_android key (it made addons.mozilla.org mark Firefox for Android as compatible and lock the checkbox); the minimum Firefox version is now 142, which supports the data collection declaration
+
+## 1.5.7
+- Add-on ID changed to anilist-autolike@0yarui (the previous ID was already registered on addons.mozilla.org). The Redirect URL changes with it: copy the new one from the popup into your API client
+
+## 1.5.6
+- Firefox for Android minimum set to 142, the first version that supports the data collection declaration (fixes the validator warning on addons.mozilla.org)
+
 ## 1.5.5
 - Manifest description no longer mentions auto-scroll (the extension never scrolls the page)
 
